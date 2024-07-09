@@ -6,7 +6,7 @@ public class Profile : BaseEntity
 
     public DateOnly Birthdate { get; set; }
 
-    public string? Description { get; set; } = default!;
+    public string? Description { get; set; }
 
     public Guid UserId { get; set; }
 

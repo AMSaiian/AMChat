@@ -4,7 +4,7 @@ using AMChat.Core.Interfaces;
 
 namespace AMChat.Core.Entities;
 
-public class Chat : BaseEntity, IOrdered
+public class Chat : BaseEntity, IOrdering
 {
     public static ReadOnlyDictionary<string, dynamic> OrderedBy { get; } = new(
         new Dictionary<string, dynamic>

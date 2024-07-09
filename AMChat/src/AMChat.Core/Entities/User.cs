@@ -4,7 +4,9 @@ using AMChat.Core.Interfaces;
 
 namespace AMChat.Core.Entities;
 
-public class User : BaseEntity, IOrdered
+public class User : BaseEntity,
+                    ISoftDeleting,
+                    IOrdering
 {
     public static ReadOnlyDictionary<string, dynamic> OrderedBy { get; } = new(
         new Dictionary<string, dynamic>
@@ -23,4 +25,6 @@ public class User : BaseEntity, IOrdered
     public List<Chat> JoinedChats { get; set; } = default!;
 
     public List<Message> Messages { get; set; } = default!;
+
+    public bool IsDeleted { get; set; } = false;
 }

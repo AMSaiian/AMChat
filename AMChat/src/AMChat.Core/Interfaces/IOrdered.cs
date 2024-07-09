@@ -2,7 +2,7 @@
 
 namespace AMChat.Core.Interfaces;
 
-public interface IOrdered
+public interface IOrdering
 {
     public static abstract ReadOnlyDictionary<string, dynamic> OrderedBy { get; }
 }
