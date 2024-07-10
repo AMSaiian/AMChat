@@ -18,4 +18,8 @@
     <ProjectReference Include="..\AMChat.Core\AMChat.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Models\" />
+  </ItemGroup>
+
 </Project>

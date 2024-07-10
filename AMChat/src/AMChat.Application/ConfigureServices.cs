@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using AMChat.Application.Common.Behaviours;
+using AMChat.Application.Common.Interfaces;
+using AMChat.Application.Common.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,10 +11,13 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        return services
+        services
             .AddHandlersAndBehaviour()
             .AddFluentValidators()
-            .AddMapping();
+            .AddMapping()
+            .AddCustomServices();
+
+        return services;
     }
 
     private static IServiceCollection AddHandlersAndBehaviour(this IServiceCollection services)
@@ -38,6 +43,13 @@ public static class ConfigureServices
     {
         services.AddAutoMapper(configuration =>
                                    configuration.AddMaps(Assembly.GetExecutingAssembly()));
+
+        return services;
+    }
+
+    private static IServiceCollection AddCustomServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IPaginationService, PaginationService>();
 
         return services;
     }
