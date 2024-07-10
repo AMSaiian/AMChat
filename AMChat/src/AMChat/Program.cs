@@ -1,7 +1,7 @@
 using AMChat.Infrastructure;
+using AMChat.Infrastructure.Persistence.Seeding.Initializers;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -13,6 +13,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Initialise and seed database
+using (var scope = app.Services.CreateScope())
+{
+    var appDbInitializer = scope.ServiceProvider
+        .GetRequiredService<IAppDbContextInitializer>();
+
+    await appDbInitializer.ApplyDatabaseStructure();
+
+    if (args.Contains("/seed"))
+    {
+        await appDbInitializer.SeedAsync();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
