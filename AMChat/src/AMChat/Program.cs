@@ -1,16 +1,23 @@
+using AMChat;
+using AMChat.Application;
 using AMChat.Infrastructure;
 using AMChat.Infrastructure.Persistence.Seeding.Initializers;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
+
+builder.Host.UseSerilog((context, configuration) =>
+                            configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add services to the container.
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 ArgumentNullException.ThrowIfNullOrEmpty(connectionString);
+
 builder.Services.AddInfrastructure(connectionString);
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddApplicationServices();
+builder.Services.AddApiServices();
 
 var app = builder.Build();
 
@@ -37,10 +44,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
 
-public partial class Program;
+namespace AMChat
+{
+    public partial class Program;
+}
