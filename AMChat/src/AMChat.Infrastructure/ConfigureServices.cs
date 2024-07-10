@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using AMChat.Application.Common.Interfaces;
 using AMChat.Core.Entities;
 using AMChat.Infrastructure.Persistence;
 using AMChat.Infrastructure.Persistence.Interceptors;
@@ -35,7 +36,8 @@ public static class ConfigureServices
                     .UseNpgsql(connectionString)
                     .UseSnakeCaseNamingConvention(CultureInfo.InvariantCulture)
                     .AddInterceptors(provider.GetRequiredService<SaveChangesInterceptor>());
-            });
+            })
+            .AddScoped<IAppDbContext, AppDbContext>();
 
         return services;
     }

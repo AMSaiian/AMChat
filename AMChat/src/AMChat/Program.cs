@@ -21,6 +21,8 @@ builder.Services.AddApiServices();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 // Initialise and seed database
 using (var scope = app.Services.CreateScope())
 {

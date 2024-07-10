@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
+using ValidationException = AMChat.Application.Common.Exceptions.ValidationException;
 
 namespace AMChat.Application.Common.Behaviours;
 

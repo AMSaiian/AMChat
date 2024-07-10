@@ -1,4 +1,5 @@
-﻿using AMChat.Filters;
+﻿using System.Reflection;
+using AMChat.Filters;
 using AMChat.Middlewares;
 
 namespace AMChat;
@@ -22,7 +23,9 @@ public static class ConfigureServices
         services
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+            .AddSwaggerGen()
+            .AddAutoMapper(configuration =>
+                               configuration.AddMaps(Assembly.GetExecutingAssembly()));
 
         return services;
     }

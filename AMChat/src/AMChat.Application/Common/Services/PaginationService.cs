@@ -1,6 +1,7 @@
 ﻿using AMChat.Application.Common.Exceptions;
 using AMChat.Application.Common.Interfaces;
 using AMChat.Application.Common.Models.Pagination;
+using AMChat.Core.Entities;
 using AMChat.Core.Interfaces;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -9,60 +10,95 @@ namespace AMChat.Application.Common.Services;
 
 public class PaginationService : IPaginationService
 {
+    private static readonly Type _orderingInterfaceType = typeof(IOrdering);
+
     public async Task<Paginated<TEntity>> PaginateAsync<TEntity>(
         IQueryable<TEntity> query,
         PaginationContext context,
         CancellationToken cancellationToken)
+        where TEntity : BaseEntity, IOrdering
+    {
+        IQueryable<TEntity> queryForChunking;
+
+        if (_orderingInterfaceType.IsAssignableFrom(typeof(TEntity)))
+        {
+            queryForChunking = TryOrderDynamically(query, context.OrderContext);
+        }
+        else
+        {
+            queryForChunking = query;
+        }
+
+        var chunkQuery = GetChunkQuery(queryForChunking, context.PageContext);
+        var paginationInfo = await GetPaginationInfoAsync(query,
+                                                          context.PageContext,
+                                                          cancellationToken);
+
+        List<TEntity> entities = await chunkQuery.ToListAsync(cancellationToken);
+
+        Paginated<TEntity> paginated = new()
+        {
+            PaginationInfo = paginationInfo,
+            Records = entities
+        };
+
+        return paginated;
+    }
+
+    public IOrderedQueryable<TEntity> TryOrderDynamically<TEntity>(
+        IQueryable<TEntity> query,
+        OrderContext context)
         where TEntity : IOrdering
     {
-        TEntity.OrderedBy.TryGetValue(context.OrderContext.PropertyName, out dynamic? orderExpression);
+        TEntity.OrderedBy.TryGetValue(context.PropertyName, out dynamic? orderExpression);
 
         if (orderExpression is null)
         {
             throw new ValidationException([ new ValidationFailure
             {
-                PropertyName = nameof(context.OrderContext.PropertyName),
-                ErrorMessage = $"Can't order entity by {context.OrderContext.PropertyName}"
+                PropertyName = nameof(context.PropertyName),
+                ErrorMessage = $"Can't order entity by {context.PropertyName}"
             }]);
         }
 
-        IQueryable<TEntity> sortedQuery = context.OrderContext.IsDescending
+        IOrderedQueryable<TEntity> sortedQuery = context.IsDescending
             ? Queryable.OrderByDescending(query, orderExpression)
             : Queryable.OrderBy(query, orderExpression);
 
-        Paginated<TEntity> result = await PaginateAsync(query, sortedQuery, context, cancellationToken);
-
-        return result;
+        return sortedQuery;
     }
 
-    private async Task<Paginated<T>> PaginateAsync<T>(IQueryable<T> query,
-                                                      IQueryable<T> sortedQuery,
-                                                      PaginationContext context,
-                                                      CancellationToken cancellationToken)
+    public IQueryable<TEntity> GetChunkQuery<TEntity>(
+        IQueryable<TEntity> query,
+        PageContext context)
+        where TEntity : BaseEntity
     {
-        int totalRecords = await query.CountAsync(cancellationToken);
-        int totalPages = (int)Math.Ceiling((decimal)totalRecords / context.PageContext.PageSize);
+        int skipAmount = (context.PageNumber - 1) * context.PageSize;
 
-        int skipAmount = (context.PageContext.PageNumber - 1) * context.PageContext.PageSize;
-
-        sortedQuery = sortedQuery
+        IQueryable<TEntity> chunkQuery = query
             .Skip(skipAmount)
-            .Take(context.PageContext.PageSize);
+            .Take(context.PageSize);
 
-        List<T> entities = await sortedQuery.ToListAsync(cancellationToken);
+        return chunkQuery;
+    }
 
-        Paginated<T> paginated = new()
+    public async Task<PaginationInfo> GetPaginationInfoAsync<TEntity>(
+        IQueryable<TEntity> initialQuery,
+        PageContext context,
+        CancellationToken cancellationToken)
+        where TEntity : BaseEntity
+    {
+        int totalRecords = await initialQuery.CountAsync(cancellationToken);
+        int totalPages = (int)Math.Ceiling((decimal)totalRecords / context.PageSize);
+
+        PaginationInfo info = new()
         {
-            PaginationInfo = new()
-            {
-                PageNumber = context.PageContext.PageNumber,
-                PageSize = context.PageContext.PageSize,
-                TotalPages = totalPages,
-                TotalRecords = totalRecords,
-            },
-            Records = entities
+            PageNumber = context.PageNumber,
+            PageSize = context.PageSize,
+            TotalPages = totalPages,
+            TotalRecords = totalRecords,
         };
 
-        return paginated;
+        return info;
     }
 }
