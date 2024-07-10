@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
+using AMChat.Application.Common.Interfaces;
 using AMChat.Core.Entities;
 using AMChat.Infrastructure.Persistence.Constraints;
 using Microsoft.EntityFrameworkCore;
 
 namespace AMChat.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options),
+                                                                    IAppDbContext
 {
     public DbSet<Chat> Chats { get; set; } = default!;
 

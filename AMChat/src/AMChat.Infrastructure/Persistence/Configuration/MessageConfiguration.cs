@@ -15,6 +15,9 @@ public class MessageConfiguration : BaseEntityConfiguration<Message>
             .HasMaxLength(DataSchemeConstraints.MessageTextLength)
             .IsRequired();
 
+        builder.Property(message => message.Kind)
+            .HasConversion<string>();
+
         builder.ToTable(table =>
         {
             table.HasCheckConstraint(CheckConstraints.MessagePostedDateNotInFuture.Name,

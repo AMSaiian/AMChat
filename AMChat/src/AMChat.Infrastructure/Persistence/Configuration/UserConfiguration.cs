@@ -32,6 +32,6 @@ public class UserConfiguration : BaseEntityConfiguration<User>
             .WithOne(message => message.Author)
             .HasForeignKey(message => message.AuthorId)
             .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
+            .IsRequired(false);
     }
 }
