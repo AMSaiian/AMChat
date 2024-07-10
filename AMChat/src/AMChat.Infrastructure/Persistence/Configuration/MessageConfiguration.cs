@@ -1,4 +1,5 @@
-﻿using AMChat.Core.Entities;
+﻿using AMChat.Core;
+using AMChat.Core.Entities;
 using AMChat.Infrastructure.Persistence.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,7 +13,7 @@ public class MessageConfiguration : BaseEntityConfiguration<Message>
         base.Configure(builder);
 
         builder.Property(message => message.Text)
-            .HasMaxLength(DataSchemeConstraints.MessageTextLength)
+            .HasMaxLength(DomainConstraints.MessageTextLength)
             .IsRequired();
 
         builder.Property(message => message.Kind)

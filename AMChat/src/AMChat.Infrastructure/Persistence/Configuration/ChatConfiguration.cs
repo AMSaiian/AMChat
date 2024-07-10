@@ -1,5 +1,5 @@
-﻿using AMChat.Core.Entities;
-using AMChat.Infrastructure.Persistence.Constraints;
+﻿using AMChat.Core;
+using AMChat.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,10 +12,10 @@ public class ChatConfiguration : BaseEntityConfiguration<Chat>
         base.Configure(builder);
 
         builder.Property(chat => chat.Name)
-            .HasMaxLength(DataSchemeConstraints.ChatNameLength);
+            .HasMaxLength(DomainConstraints.ChatNameLength);
 
         builder.Property(chat => chat.Description)
-            .HasMaxLength(DataSchemeConstraints.ChatDescriptionLength)
+            .HasMaxLength(DomainConstraints.ChatDescriptionLength)
             .IsRequired(false);
 
         builder.HasMany(chat => chat.Messages)

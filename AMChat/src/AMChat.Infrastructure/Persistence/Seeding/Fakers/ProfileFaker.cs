@@ -1,5 +1,5 @@
-﻿using AMChat.Core.Entities;
-using AMChat.Infrastructure.Persistence.Constraints;
+﻿using AMChat.Core;
+using AMChat.Core.Entities;
 using Bogus;
 
 namespace AMChat.Infrastructure.Persistence.Seeding.Fakers;
@@ -15,7 +15,7 @@ public sealed class ProfileFaker : Faker<Profile>
                 faker => faker.Date.PastDateOnly(50,
                                                  DateOnly
                                                      .FromDateTime(DateTime.UtcNow)
-                                                     .AddYears(-DataSchemeConstraints.MinimalUserAge)));
+                                                     .AddYears(-DomainConstraints.MinimalUserAge)));
 
         RuleFor(profile => profile.Description,
                 faker => faker.Lorem

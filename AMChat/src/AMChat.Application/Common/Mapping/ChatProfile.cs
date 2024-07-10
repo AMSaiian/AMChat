@@ -1,5 +1,4 @@
-﻿using AMChat.Application.Chats.Queries.GetPaginatedChats;
-using AMChat.Application.Common.Models.Chat;
+﻿using AMChat.Application.Common.Models.Chat;
 using AMChat.Core.Entities;
 using Profile = AutoMapper.Profile;
 

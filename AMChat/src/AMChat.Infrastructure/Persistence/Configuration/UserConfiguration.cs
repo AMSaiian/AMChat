@@ -1,5 +1,5 @@
-﻿using AMChat.Core.Entities;
-using AMChat.Infrastructure.Persistence.Constraints;
+﻿using AMChat.Core;
+using AMChat.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,7 +14,7 @@ public class UserConfiguration : BaseEntityConfiguration<User>
         builder.HasIndex(user => user.Name)
             .IsUnique();
         builder.Property(user => user.Name)
-            .HasMaxLength(DataSchemeConstraints.UsernameLength);
+            .HasMaxLength(DomainConstraints.UsernameLength);
 
         builder.HasOne(user => user.Profile)
             .WithOne(profile => profile.User)

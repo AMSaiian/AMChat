@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AMChat.Controllers;
 
-public class ChatsController(IMediator mediator, IMapper mapper) : ApiControllerBase(mediator)
+public class ChatsController(IMediator mediator,
+                             IMapper mapper)
+    : ApiControllerBase(mediator, mapper)
 {
-    private readonly IMapper _mapper = mapper;
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Paginated<ChatDto>))]

@@ -9,7 +9,6 @@ public sealed class QueriesProfile : Profile
     public QueriesProfile()
     {
         CreateMap<PaginationQuery, PageContext>();
-
         CreateMap<OrderQuery, OrderContext>();
     }
 }

@@ -5,7 +5,7 @@ namespace AMChat.Application.Common.Behaviours;
 
 public class LoggingBehaviour<TRequest, TResponse>(ILogger<TRequest> logger)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : IBaseRequest
 {
     private readonly ILogger<TRequest> _logger = logger;
 

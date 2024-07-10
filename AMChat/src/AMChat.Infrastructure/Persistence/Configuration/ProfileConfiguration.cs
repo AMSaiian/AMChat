@@ -1,4 +1,5 @@
-﻿using AMChat.Core.Entities;
+﻿using AMChat.Core;
+using AMChat.Core.Entities;
 using AMChat.Infrastructure.Persistence.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,10 +13,10 @@ public class ProfileConfiguration : BaseEntityConfiguration<Profile>
         base.Configure(builder);
 
         builder.Property(profile => profile.Fullname)
-            .HasMaxLength(DataSchemeConstraints.FullnameLength);
+            .HasMaxLength(DomainConstraints.FullnameLength);
 
         builder.Property(profile => profile.Description)
-            .HasMaxLength(DataSchemeConstraints.ProfileDescription)
+            .HasMaxLength(DomainConstraints.ProfileDescription)
             .IsRequired(false);
 
         builder.ToTable(table =>

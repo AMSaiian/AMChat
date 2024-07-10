@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using AMChat.Application.Common.Interfaces;
 using AMChat.Filters;
 using AMChat.Middlewares;
+using AMChat.Services;
 
 namespace AMChat;
 
@@ -25,7 +27,16 @@ public static class ConfigureServices
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
             .AddAutoMapper(configuration =>
-                               configuration.AddMaps(Assembly.GetExecutingAssembly()));
+                               configuration.AddMaps(Assembly.GetExecutingAssembly()))
+            .AddCustomServices();
+
+        return services;
+    }
+
+    private static IServiceCollection AddCustomServices(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<ICurrentUserService, CurrentUserService>();
 
         return services;
     }
