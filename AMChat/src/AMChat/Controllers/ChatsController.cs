@@ -1,4 +1,6 @@
-﻿using AMChat.Application.Chats.Queries.GetChats;
+﻿using AMChat.Application.Chats.Command.JoinChat;
+using AMChat.Application.Chats.Command.LeftChat;
+using AMChat.Application.Chats.Queries.GetChats;
 using AMChat.Application.Chats.Queries.GetPaginatedChats;
 using AMChat.Application.Common.Models.Chat;
 using AMChat.Application.Common.Models.Pagination;
@@ -61,5 +63,49 @@ public class ChatsController(IMediator mediator,
 
             return Ok(result);
         }
+    }
+
+    [HttpPost("{id}/users")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> JoinChat([FromRoute] Guid id,
+                                              [FromBody] Guid userId,
+                                              CancellationToken cancellationToken = default)
+    {
+        JoinChatCommand command = new()
+        {
+            ChatId = id,
+            UserId = userId
+        };
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok();
+    }
+
+    [HttpDelete("{id}/users")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LeftChat([FromRoute] Guid id,
+                                              [FromBody] Guid userId,
+                                              CancellationToken cancellationToken = default)
+    {
+        LeftChatCommand command = new()
+        {
+            ChatId = id,
+            UserId = userId
+        };
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok();
     }
 }

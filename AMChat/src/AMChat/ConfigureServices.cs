@@ -25,7 +25,10 @@ public static class ConfigureServices
         services
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen()
+            .AddSwaggerGen(options =>
+            {
+                options.OperationFilter<SwaggerUserIdFilter>();
+            })
             .AddAutoMapper(configuration =>
                                configuration.AddMaps(Assembly.GetExecutingAssembly()))
             .AddCustomServices();

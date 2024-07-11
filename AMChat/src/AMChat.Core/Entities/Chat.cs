@@ -21,7 +21,7 @@ public class Chat : BaseEntity, IOrdering
 
     public User Owner { get; set; } = default!;
 
-    public List<User> JoinedUsers { get; set; } = default!;
+    public List<User> JoinedUsers { get; set; } = [];
 
-    public List<Message> Messages { get; set; } = default!;
+    public List<Message> Messages { get; set; } = [];
 }

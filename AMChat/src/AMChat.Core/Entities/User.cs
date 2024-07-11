@@ -20,11 +20,11 @@ public class User : BaseEntity,
 
     public Profile Profile { get; set; } = default!;
 
-    public List<Chat> OwnedChats { get; set; } = default!;
+    public List<Chat> OwnedChats { get; set; } = [];
 
-    public List<Chat> JoinedChats { get; set; } = default!;
+    public List<Chat> JoinedChats { get; set; } = [];
 
-    public List<Message> Messages { get; set; } = default!;
+    public List<Message> Messages { get; set; } = [];
 
     public bool IsDeleted { get; set; } = false;
 }
