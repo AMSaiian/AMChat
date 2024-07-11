@@ -3,6 +3,7 @@ using AMChat.Application.Common.Interfaces;
 using AMChat.Filters;
 using AMChat.Middlewares;
 using AMChat.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace AMChat;
 
@@ -21,6 +22,11 @@ public static class ConfigureServices
         });
 
         services.AddControllers(opts => opts.Filters.Add<ApiExceptionFilterAttribute>());
+
+        services.AddSignalR(options =>
+        {
+            options.AddFilter<SignalrExceptionFilter>();
+        });
 
         services
             .AddExceptionHandler<GlobalExceptionHandler>()

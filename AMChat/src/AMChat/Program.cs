@@ -1,5 +1,6 @@
 using AMChat;
 using AMChat.Application;
+using AMChat.Hubs.Chat;
 using AMChat.Infrastructure;
 using AMChat.Infrastructure.Persistence.Seeding.Initializers;
 using Serilog;
@@ -47,6 +48,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chat");
 
 app.Run();
 

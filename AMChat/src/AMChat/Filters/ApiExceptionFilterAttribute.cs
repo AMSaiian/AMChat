@@ -1,23 +1,26 @@
 using AMChat.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using UnauthorizedAccessException = AMChat.Application.Common.Exceptions.UnauthorizedAccessException;
 
 namespace AMChat.Filters;
 
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {
-    private readonly IDictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
+    private readonly IReadOnlyDictionary<Type, Action<ExceptionContext>> _exceptionHandlers;
 
-    public ApiExceptionFilterAttribute(ILogger<ApiExceptionFilterAttribute> logger)
+    public ApiExceptionFilterAttribute()
     {
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
             {
                 { typeof(ValidationException), HandleValidationException },
                 { typeof(NotFoundException), HandleNotFoundException },
+                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
                 { typeof(ConflictException), HandleConflictException },
             };
     }
+
 
     public override void OnException(ExceptionContext context)
     {
@@ -30,9 +33,9 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         Type type = context.Exception.GetType();
 
-        if (_exceptionHandlers.ContainsKey(type))
+        if (_exceptionHandlers.TryGetValue(type, out Action<ExceptionContext>? handler))
         {
-            _exceptionHandlers[type].Invoke(context);
+            handler(context);
         }
     }
 
@@ -63,6 +66,26 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         };
 
         context.Result = new NotFoundObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleUnauthorizedAccessException(ExceptionContext context)
+    {
+        var exception = (UnauthorizedAccessException)context.Exception;
+
+        var details = new ProblemDetails
+        {
+            Status = StatusCodes.Status401Unauthorized,
+            Title = "Unauthorized",
+            Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
+            Detail = exception.Message
+        };
+
+        context.Result = new ObjectResult(details)
+        {
+            StatusCode = StatusCodes.Status401Unauthorized
+        };
 
         context.ExceptionHandled = true;
     }
