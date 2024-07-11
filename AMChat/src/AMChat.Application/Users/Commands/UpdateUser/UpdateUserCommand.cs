@@ -30,16 +30,18 @@ public class UpdateUserHandler(IAppDbContext dbContext,
 
         Guid currentUserId = _currentUser.GetUserIdOrThrow();
 
-        if (currentUserId != request.Id)
-        {
-            throw new ForbiddenAccessException(ErrorTemplates.ForbiddenUpdateNotOwnedUser);
-        }
-
         User updatingUser = await _dbContext.Users
             .FindAsync(request.Id, cancellationToken)
                  ?? throw new NotFoundException(
                                 string.Format(ErrorTemplates.EntityNotFoundFormat,
                                               nameof(User)));
+
+        if (currentUserId != updatingUser.Id)
+        {
+            throw new ForbiddenAccessException(
+                string.Format(ErrorTemplates.ForbiddenUpdateNotOwnedResourceFormat,
+                              nameof(User)));
+        }
 
         bool isUserWithUserNameExists = await _dbContext.Users
             .AnyAsync(user => user.Name.ToLower() == request.Name.ToLower(),

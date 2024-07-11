@@ -1,4 +1,5 @@
-﻿using AMChat.Application.Users.Commands.CreateUser;
+﻿using AMChat.Application.Common.Models.User;
+using AMChat.Application.Users.Commands.CreateUser;
 using AMChat.Application.Users.Commands.UpdateUser;
 using AMChat.Application.Users.Commands.UpdateUserProfile;
 using AMChat.Core.Entities;
@@ -9,6 +10,15 @@ public sealed class UserProfile : AutoMapper.Profile
 {
     public UserProfile()
     {
+        CreateMap<User, UserDto>()
+            .ForMember(dto => dto.OwnedChatsId,
+                       options => options.MapFrom(
+                           entity => entity.OwnedChats
+                               .Select(chat => chat.Id)))
+            .ForMember(dto => dto.JoinedChatsId,
+                       options => options.MapFrom(
+                           entity => entity.JoinedChats.Select(chat => chat.Id)));
+
         CreateMap<User, CreateUserCommand>()
             .ReverseMap();
         CreateMap<User, UpdateUserCommand>()

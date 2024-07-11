@@ -97,9 +97,13 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         _chats.AddRange(_chatFaker
                             .Generate(_chatsAmount));
 
+        var chatOwners = _users
+            .Take(_chatsAmount)
+            .ToList();
+
         for (int i = 0; i < _chatsAmount; i++)
         {
-            _chats[i].Owner = _users[i];
+            _chats[i].Owner = chatOwners[i];
         }
 
         var joinedUsersChunks = _users
@@ -110,6 +114,8 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         for (int i = 0; i < joinedUsersChunks.Count; i++)
         {
             _chats[i].JoinedUsers.AddRange(joinedUsersChunks[i]);
+            _chats[i].JoinedUsers.AddRange(chatOwners
+                                               .Where(user => user != _chats[i].Owner));
         }
 
         await _context.Chats.AddRangeAsync(_chats);

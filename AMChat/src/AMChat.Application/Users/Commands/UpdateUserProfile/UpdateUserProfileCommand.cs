@@ -33,17 +33,19 @@ public class UpdateUserProfileHandler(IAppDbContext dbContext,
 
         Guid currentUserId = _currentUser.GetUserIdOrThrow();
 
-        if (currentUserId != request.UserId)
-        {
-            throw new ForbiddenAccessException(ErrorTemplates.ForbiddenUpdateNotOwnedUser);
-        }
-
         Profile updatingProfile = await _dbContext.Profiles
                                      .FirstOrDefaultAsync(entity => entity.UserId == request.UserId,
                                                           cancellationToken)
                               ?? throw new NotFoundException(
                                      string.Format(ErrorTemplates.EntityNotFoundFormat,
                                                    nameof(Profile)));
+
+        if (currentUserId != updatingProfile.UserId)
+        {
+            throw new ForbiddenAccessException(
+                string.Format(ErrorTemplates.ForbiddenUpdateNotOwnedResourceFormat,
+                              nameof(Profile)));
+        }
 
         _mapper.Map(request, updatingProfile);
 
