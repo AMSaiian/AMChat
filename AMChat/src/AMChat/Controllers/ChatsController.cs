@@ -1,10 +1,14 @@
-﻿using AMChat.Application.Chats.Command.JoinChat;
+﻿using AMChat.Application.Chats.Command.CreateChat;
+using AMChat.Application.Chats.Command.DeleteChat;
+using AMChat.Application.Chats.Command.JoinChat;
 using AMChat.Application.Chats.Command.LeftChat;
+using AMChat.Application.Chats.Command.UpdateChat;
 using AMChat.Application.Chats.Queries.GetChats;
 using AMChat.Application.Chats.Queries.GetPaginatedChats;
 using AMChat.Application.Common.Models.Chat;
 using AMChat.Application.Common.Models.Pagination;
 using AMChat.Contract.Queries;
+using AMChat.Contract.Requests.Chats;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -65,11 +69,70 @@ public class ChatsController(IMediator mediator,
         }
     }
 
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateChat([FromBody] CreateChatRequest newChat,
+                                                CancellationToken cancellationToken = default)
+    {
+        CreateChatCommand command = _mapper.Map<CreateChatCommand>(newChat);
+
+        Guid result = await _mediator.Send(command, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateChat([FromRoute] Guid id,
+                                                [FromBody] UpdateChatRequest updatedChat,
+                                                CancellationToken cancellationToken = default)
+    {
+        UpdateChatCommand command = _mapper.Map<UpdateChatCommand>(updatedChat);
+
+        command = command with { Id = id };
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteChat([FromRoute] Guid id,
+                                                CancellationToken cancellationToken = default)
+    {
+        DeleteChatCommand command = new()
+        {
+            Id = id
+        };
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok();
+    }
+
     [HttpPost("{id}/users")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> JoinChat([FromRoute] Guid id,
@@ -92,6 +155,7 @@ public class ChatsController(IMediator mediator,
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LeftChat([FromRoute] Guid id,

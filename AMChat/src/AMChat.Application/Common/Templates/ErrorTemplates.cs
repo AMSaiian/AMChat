@@ -14,6 +14,9 @@ public static class ErrorTemplates
     public static readonly string LeftFromNotJoinedChatError =
         "User haven't joined this chat yet";
 
+    public static readonly string SameChatOwnerChange =
+        "Provided user is already owner of this chat";
+
     public static readonly string EntityNotFoundFormat = "Entity {0} not found";
     public static readonly string EmptyUpdateObjectError = "No changes provided";
 
