@@ -33,7 +33,7 @@ using (var scope = app.Services.CreateScope())
 
     await appDbInitializer.ApplyDatabaseStructure();
 
-    if (args.Contains("/seed"))
+    if (bool.TryParse(builder.Configuration.GetSection("Seeding").Value, out bool value) && value)
     {
         await appDbInitializer.SeedAsync();
     }

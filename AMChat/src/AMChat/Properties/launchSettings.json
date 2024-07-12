@@ -16,7 +16,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5161",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SEEDING": "true"
       }
     },
     "https": {
@@ -26,16 +27,17 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7237;http://localhost:5161",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "commandLineArgs": "/seed"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SEEDING": "true"
+      }
     },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SEEDING": "true"
       }
     }
   }
