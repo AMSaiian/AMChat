@@ -16,12 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\.dockerignore">
-      <Link>.dockerignore</Link>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AMChat.Application\AMChat.Application.csproj" />
     <ProjectReference Include="..\AMChat.Infrastructure\AMChat.Infrastructure.csproj" />
   </ItemGroup>
