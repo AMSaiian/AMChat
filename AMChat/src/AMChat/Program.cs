@@ -3,6 +3,7 @@ using AMChat.Application;
 using AMChat.Hubs.Chat;
 using AMChat.Infrastructure;
 using AMChat.Infrastructure.Persistence.Seeding.Initializers;
+using AMChat.Middlewares;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<MoqAuthenticationMiddleware>();
 
 app.MapControllers();
 

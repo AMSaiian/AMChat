@@ -4,8 +4,10 @@ using AMChat.Application.Users.Commands.CreateUser;
 using AMChat.Application.Users.Commands.DeleteUser;
 using AMChat.Application.Users.Commands.UpdateUser;
 using AMChat.Application.Users.Commands.UpdateUserProfile;
+using AMChat.Application.Users.Queries.GetUserById;
 using AMChat.Application.Users.Queries.GetUsers;
 using AMChat.Application.Users.Queries.GetUsersPaginated;
+using AMChat.Constants;
 using AMChat.Contract.Queries;
 using AMChat.Contract.Requests.Users;
 using AutoMapper;
@@ -18,53 +20,22 @@ public class UsersController(IMediator mediator,
                              IMapper mapper)
     : ApiControllerBase(mediator, mapper)
 {
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Paginated<UserDto>))]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDetailedDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetUsers([FromQuery] PaginationQuery page,
-                                              [FromQuery] OrderQuery order,
-                                              [FromQuery] string search = "",
-                                              CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetUserById([FromRoute] Guid id,
+                                                 CancellationToken cancellationToken = default)
     {
-        if (page.PageNumber is not null
-         && page.PageSize is not null)
+        GetUserByIdQuery query = new()
         {
-            PaginationContext context = new()
-            {
-                PageContext = _mapper.Map<PageContext>(page),
-                OrderContext = order.PropertyName is not null
-                    ? _mapper.Map<OrderContext>(order)
-                    : new() { PropertyName = "name", IsDescending = false }
-            };
+            Id = id
+        };
 
-            GetUsersPaginatedQuery query = new()
-            {
-                PaginationContext = context,
-                SearchPattern = search
-            };
+        UserDetailedDto result = await _mediator.Send(query, cancellationToken);
 
-            Paginated<UserDto> result = await _mediator.Send(query, cancellationToken);
-
-            return Ok(result);
-        }
-        else
-        {
-            OrderContext? context = order.PropertyName is not null
-                ? _mapper.Map<OrderContext>(order)
-                : null;
-
-            GetUsersQuery query = new()
-            {
-                OrderContext = context,
-                SearchPattern = search
-            };
-
-            List<UserDto> result = await _mediator.Send(query, cancellationToken);
-
-            return Ok(result);
-        }
+        return Ok(result);
     }
 
     [HttpPost]
@@ -138,5 +109,58 @@ public class UsersController(IMediator mediator,
         await _mediator.Send(command, cancellationToken);
 
         return Ok();
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Paginated<UserDto>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetUsers([FromQuery] PaginationQuery page,
+                                              [FromQuery] OrderQuery order,
+                                              [FromQuery] string search = "",
+                                              CancellationToken cancellationToken = default)
+    {
+        if (page.PageNumber is not null
+         && page.PageSize is not null)
+        {
+            PaginationContext context = new()
+            {
+                PageContext = _mapper.Map<PageContext>(page),
+                OrderContext = order.PropertyName is not null
+                    ? _mapper.Map<OrderContext>(order)
+                    : new()
+                    {
+                        PropertyName = DefaultPaginationOrderProperties.UserOrder,
+                        IsDescending = false
+                    }
+            };
+
+            GetUsersPaginatedQuery query = new()
+            {
+                PaginationContext = context,
+                SearchPattern = search
+            };
+
+            Paginated<UserDto> result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        else
+        {
+            OrderContext? context = order.PropertyName is not null
+                ? _mapper.Map<OrderContext>(order)
+                : null;
+
+            GetUsersQuery query = new()
+            {
+                OrderContext = context,
+                SearchPattern = search
+            };
+
+            List<UserDto> result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
     }
 }

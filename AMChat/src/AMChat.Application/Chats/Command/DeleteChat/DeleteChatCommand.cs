@@ -12,10 +12,13 @@ public record DeleteChatCommand : IRequest
 }
 
 public class DeleteChatHandler(IAppDbContext dbContext,
-                               ICurrentUserService currentUser) : IRequestHandler<DeleteChatCommand>
+                               ICurrentUserService currentUser,
+                               IChatService chatService)
+    : IRequestHandler<DeleteChatCommand>
 {
     private readonly IAppDbContext _dbContext = dbContext;
     private readonly ICurrentUserService _currentUser = currentUser;
+    private readonly IChatService _chatService = chatService;
 
     public async Task Handle(DeleteChatCommand request,
                              CancellationToken cancellationToken)
@@ -41,5 +44,7 @@ public class DeleteChatHandler(IAppDbContext dbContext,
         _dbContext.Chats.Remove(deletingChat);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await _chatService.DisconnectAllUsersFromChat(request.Id.ToString());
     }
 }

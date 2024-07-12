@@ -1,11 +1,11 @@
-﻿using AMChat.Application.Common.Interfaces;
+﻿using System.Security.Claims;
+using AMChat.Application.Common.Interfaces;
 
 namespace AMChat.Services;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     : ICurrentUserService
 {
-    private static readonly string UserIdHeaderName = CustomHeaders.UserIdHeader;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public Guid? UserId
@@ -13,11 +13,12 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
         get
         {
             bool isParsed = Guid
-                .TryParse(_httpContextAccessor.HttpContext?.Request.Headers[UserIdHeaderName],
-                          out Guid header);
+                .TryParse(_httpContextAccessor.HttpContext?.User
+                              .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value,
+                          out Guid userId);
 
             return isParsed
-                ? header
+                ? userId
                 : null;
         }
     }
@@ -25,11 +26,12 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     public Guid GetUserIdOrThrow()
     {
         bool isParsed = Guid
-            .TryParse(_httpContextAccessor.HttpContext?.Request.Headers[UserIdHeaderName],
-                      out Guid header);
+            .TryParse(_httpContextAccessor.HttpContext?.User
+                          .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value,
+                      out Guid userId);
 
         return isParsed
-            ? header
+            ? userId
             : throw new UnauthorizedAccessException();
     }
 }

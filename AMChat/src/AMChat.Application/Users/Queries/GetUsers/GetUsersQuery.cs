@@ -29,8 +29,6 @@ public class GetUsersHandler(IAppDbContext dbContext,
         IQueryable<User> usersQuery = _dbContext.Users
             .AsNoTracking()
             .Include(user => user.Profile)
-            .Include(user => user.JoinedChats)
-            .Include(user => user.OwnedChats)
             .Where(user => user.Name.Contains(request.SearchPattern));
 
         if (request.OrderContext is not null)

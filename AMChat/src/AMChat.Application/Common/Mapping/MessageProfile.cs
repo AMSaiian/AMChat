@@ -1,4 +1,5 @@
-﻿using AMChat.Application.Common.Models.Message;
+﻿using AMChat.Application.Chats.Command.SendMessage;
+using AMChat.Application.Common.Models.Message;
 using AMChat.Core.Entities;
 using Profile = AutoMapper.Profile;
 
@@ -10,5 +11,7 @@ public sealed class MessageProfile : Profile
     {
         CreateMap<Message, MessageDto>()
             .ReverseMap();
+
+        CreateMap<SendMessageCommand, Message>();
     }
 }

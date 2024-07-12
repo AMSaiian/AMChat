@@ -1,7 +1,9 @@
 ﻿using AMChat.Application.Common.Exceptions;
 using AMChat.Application.Common.Interfaces;
+using AMChat.Application.Common.Models.Message;
 using AMChat.Application.Common.Templates;
 using AMChat.Core.Entities;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +16,15 @@ public record LeftChatCommand : IRequest
 }
 
 public class LeftChatHandler(IAppDbContext dbContext,
-                             ICurrentUserService currentUser)
+                             ICurrentUserService currentUser,
+                             IMapper mapper,
+                             IChatService chatService)
     : IRequestHandler<LeftChatCommand>
 {
     private readonly IAppDbContext _dbContext = dbContext;
     private readonly ICurrentUserService _currentUser = currentUser;
+    private readonly IChatService _chatService = chatService;
+    private readonly IMapper _mapper = mapper;
 
     public async Task Handle(LeftChatCommand request, CancellationToken cancellationToken)
     {
@@ -57,7 +63,7 @@ public class LeftChatHandler(IAppDbContext dbContext,
                               .Collection(user => user.JoinedChats)
                               .Query()
                               .FirstOrDefaultAsync(chat => chat.Id == request.ChatId,
-                                                           cancellationToken)
+                                                   cancellationToken)
                        ?? await _dbContext.Users
                               .Entry(userToLeft)
                               .Collection(user => user.OwnedChats)
@@ -70,6 +76,8 @@ public class LeftChatHandler(IAppDbContext dbContext,
         {
             Text = string.Format(SystemMessageTemplates.LeftTheChatMessage, userToLeft.Name)
         };
+
+        bool isChatDeleted = false;
 
         if (chatToLeft.OwnerId == userToLeft.Id)
         {
@@ -85,19 +93,29 @@ public class LeftChatHandler(IAppDbContext dbContext,
             {
                 chatToLeft.Owner = newOwner;
                 chatToLeft.JoinedUsers.Remove(newOwner);
-                chatToLeft.Messages.Add(userLeftChat);
             }
             else
             {
                 _dbContext.Chats.Remove(chatToLeft);
+                isChatDeleted = true;
             }
         }
         else
         {
             userToLeft.JoinedChats.Remove(chatToLeft);
+        }
+
+        if (!isChatDeleted)
+        {
             chatToLeft.Messages.Add(userLeftChat);
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (!isChatDeleted)
+        {
+            MessageDto userLeftChatDto = _mapper.Map<MessageDto>(userLeftChat);
+            await _chatService.SendMessagesAsync(request.ChatId.ToString(), [userLeftChatDto]);
+        }
     }
 }

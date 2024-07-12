@@ -18,8 +18,4 @@
     <ProjectReference Include="..\AMChat.Core\AMChat.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Messages\" />
-  </ItemGroup>
-
 </Project>

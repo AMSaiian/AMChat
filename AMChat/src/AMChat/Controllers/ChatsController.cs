@@ -3,10 +3,12 @@ using AMChat.Application.Chats.Command.DeleteChat;
 using AMChat.Application.Chats.Command.JoinChat;
 using AMChat.Application.Chats.Command.LeftChat;
 using AMChat.Application.Chats.Command.UpdateChat;
+using AMChat.Application.Chats.Queries.GetChatById;
 using AMChat.Application.Chats.Queries.GetChats;
 using AMChat.Application.Chats.Queries.GetPaginatedChats;
 using AMChat.Application.Common.Models.Chat;
 using AMChat.Application.Common.Models.Pagination;
+using AMChat.Constants;
 using AMChat.Contract.Queries;
 using AMChat.Contract.Requests.Chats;
 using AutoMapper;
@@ -19,54 +21,22 @@ public class ChatsController(IMediator mediator,
                              IMapper mapper)
     : ApiControllerBase(mediator, mapper)
 {
-
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Paginated<ChatDto>))]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ChatDto>))]
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ChatDetailedDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetChats([FromQuery] PaginationQuery page,
-                                              [FromQuery] OrderQuery order,
-                                              [FromQuery] string search = "",
-                                              CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetChatById([FromRoute] Guid id,
+                                                 CancellationToken cancellationToken = default)
     {
-        if (page.PageNumber is not null
-         && page.PageSize is not null)
+        GetChatByIdQuery query = new()
         {
-            PaginationContext context = new()
-            {
-                PageContext = _mapper.Map<PageContext>(page),
-                OrderContext = order.PropertyName is not null
-                    ? _mapper.Map<OrderContext>(order)
-                    : new() { PropertyName = "name", IsDescending = false }
-            };
+            Id = id
+        };
 
-            GetPaginatedChatsQuery query = new()
-            {
-                PaginationContext = context,
-                SearchPattern = search
-            };
+        ChatDetailedDto result = await _mediator.Send(query, cancellationToken);
 
-            Paginated<ChatDto> result = await _mediator.Send(query, cancellationToken);
-
-            return Ok(result);
-        }
-        else
-        {
-            OrderContext? context = order.PropertyName is not null
-                ? _mapper.Map<OrderContext>(order)
-                : null;
-
-            GetChatsQuery query = new()
-            {
-                OrderContext = context,
-                SearchPattern = search
-            };
-
-            List<ChatDto> result = await _mediator.Send(query, cancellationToken);
-
-            return Ok(result);
-        }
+        return Ok(result);
     }
 
     [HttpPost]
@@ -171,5 +141,58 @@ public class ChatsController(IMediator mediator,
         await _mediator.Send(command, cancellationToken);
 
         return Ok();
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Paginated<ChatDto>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ChatDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetChats([FromQuery] PaginationQuery page,
+                                              [FromQuery] OrderQuery order,
+                                              [FromQuery] string search = "",
+                                              CancellationToken cancellationToken = default)
+    {
+        if (page.PageNumber is not null
+         && page.PageSize is not null)
+        {
+            PaginationContext context = new()
+            {
+                PageContext = _mapper.Map<PageContext>(page),
+                OrderContext = order.PropertyName is not null
+                    ? _mapper.Map<OrderContext>(order)
+                    : new()
+                    {
+                        PropertyName = DefaultPaginationOrderProperties.ChatOrder,
+                        IsDescending = false
+                    }
+            };
+
+            GetPaginatedChatsQuery query = new()
+            {
+                PaginationContext = context,
+                SearchPattern = search
+            };
+
+            Paginated<ChatDto> result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        else
+        {
+            OrderContext? context = order.PropertyName is not null
+                ? _mapper.Map<OrderContext>(order)
+                : null;
+
+            GetChatsQuery query = new()
+            {
+                OrderContext = context,
+                SearchPattern = search
+            };
+
+            List<ChatDto> result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
     }
 }

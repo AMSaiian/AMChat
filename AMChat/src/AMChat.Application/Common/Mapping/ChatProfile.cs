@@ -10,7 +10,16 @@ public sealed class ChatProfile : Profile
 {
     public ChatProfile()
     {
-        CreateMap<Chat, ChatDto>();
+        CreateMap<Chat, ChatDto>()
+            .IncludeAllDerived();
+
+        CreateMap<Chat, ChatDetailedDto>()
+            .ForMember(dto => dto.JoinedUsersId, options =>
+            {
+                options.MapFrom(entity => entity.JoinedUsers
+                                    .Select(user => user.Id));
+            });
+
         CreateMap<CreateChatCommand, Chat>();
         CreateMap<Chat, UpdateChatCommand>()
             .ReverseMap()

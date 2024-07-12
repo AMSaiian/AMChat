@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using AMChat.Application.Common.Interfaces;
 using AMChat.Filters;
+using AMChat.Hubs.Common.Cache;
+using AMChat.Hubs.Common.Interfaces;
 using AMChat.Middlewares;
 using AMChat.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -45,7 +47,9 @@ public static class ConfigureServices
     private static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
         services
-            .AddSingleton<ICurrentUserService, CurrentUserService>();
+            .AddSingleton<ICurrentUserService, CurrentUserService>()
+            .AddSingleton<IChatCache, ChatCache>()
+            .AddScoped<IChatService, ChatService>();
 
         return services;
     }

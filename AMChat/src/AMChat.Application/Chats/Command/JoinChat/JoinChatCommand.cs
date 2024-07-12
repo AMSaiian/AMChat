@@ -1,7 +1,9 @@
 ﻿using AMChat.Application.Common.Exceptions;
 using AMChat.Application.Common.Interfaces;
+using AMChat.Application.Common.Models.Message;
 using AMChat.Application.Common.Templates;
 using AMChat.Core.Entities;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +16,15 @@ public record JoinChatCommand : IRequest
 }
 
 public class JoinChatHandler(IAppDbContext dbContext,
-                             ICurrentUserService currentUser)
+                             ICurrentUserService currentUser,
+                             IMapper mapper,
+                             IChatService chatService)
     : IRequestHandler<JoinChatCommand>
 {
     private readonly IAppDbContext _dbContext = dbContext;
     private readonly ICurrentUserService _currentUser = currentUser;
+    private readonly IChatService _chatService = chatService;
+    private readonly IMapper _mapper = mapper;
 
     public async Task Handle(JoinChatCommand request, CancellationToken cancellationToken)
     {
@@ -75,5 +81,8 @@ public class JoinChatHandler(IAppDbContext dbContext,
         chatToAdd.Messages.Add(userJoinChat);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        MessageDto userJoinChatDto = _mapper.Map<MessageDto>(userJoinChat);
+        await _chatService.SendMessagesAsync(request.ChatId.ToString(), [userJoinChatDto]);
     }
 }

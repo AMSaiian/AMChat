@@ -11,6 +11,9 @@ public sealed class UserProfile : AutoMapper.Profile
     public UserProfile()
     {
         CreateMap<User, UserDto>()
+            .IncludeAllDerived();
+
+        CreateMap<User, UserDetailedDto>()
             .ForMember(dto => dto.OwnedChatsId,
                        options => options.MapFrom(
                            entity => entity.OwnedChats
