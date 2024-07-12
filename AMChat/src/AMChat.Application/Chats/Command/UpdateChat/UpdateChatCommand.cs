@@ -32,7 +32,9 @@ public class UpdateChatHandler(IAppDbContext dbContext,
         Guid currentUserId = _currentUser.GetUserIdOrThrow();
 
         Chat updatingChat = await _dbContext.Chats
-                                .FindAsync(request.Id, cancellationToken)
+                                .Include(chat => chat.Owner)
+                                .FirstOrDefaultAsync(chat => chat.Id == request.Id,
+                                                     cancellationToken)
                          ?? throw new NotFoundException(
                                 string.Format(ErrorTemplates.EntityNotFoundFormat,
                                               nameof(Chat)));
@@ -44,20 +46,25 @@ public class UpdateChatHandler(IAppDbContext dbContext,
                               nameof(Chat)));
         }
 
-        bool isNewOwnerExists = await _dbContext.Users
-            .AnyAsync(user => user.Id == request.OwnerId,
-                      cancellationToken);
-
-        if (!isNewOwnerExists)
+        if (request.OwnerId is not null)
         {
-            throw new NotFoundException(
-                string.Format(ErrorTemplates.EntityNotFoundFormat,
-                              nameof(User)));
-        }
+            if (request.OwnerId == updatingChat.OwnerId)
+            {
+                throw new ConflictException(ErrorTemplates.SameChatOwnerChange);
+            }
 
-        if (request.OwnerId == updatingChat.OwnerId)
-        {
-            throw new ConflictException(ErrorTemplates.SameChatOwnerChange);
+            User newOwner = await _dbContext.Chats
+                .Entry(updatingChat)
+                .Collection(chat => chat.JoinedUsers)
+                .Query()
+                .FirstOrDefaultAsync(user => user.Id == request.OwnerId,
+                                     cancellationToken) ??
+                            throw new NotFoundException(
+                                string.Format(ErrorTemplates.EntityNotFoundFormat,
+                                              nameof(User)));
+
+            updatingChat.JoinedUsers.Remove(newOwner);
+            updatingChat.JoinedUsers.Add(updatingChat.Owner);
         }
 
         _mapper.Map(request, updatingChat);

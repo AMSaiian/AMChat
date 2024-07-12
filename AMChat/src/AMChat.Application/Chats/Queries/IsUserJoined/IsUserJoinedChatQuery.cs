@@ -40,7 +40,7 @@ public class IsUserJoinedChatHandler(IAppDbContext dbContext,
         if (currentUserId != challengingUser.Id)
         {
             throw new ForbiddenAccessException(
-                string.Format(ErrorTemplates.ForbiddenDeleteNotOwnedResourceFormat,
+                string.Format(ErrorTemplates.ForbiddenManipulateEntitiesNotOwnedFormat,
                               nameof(User)));
         }
 

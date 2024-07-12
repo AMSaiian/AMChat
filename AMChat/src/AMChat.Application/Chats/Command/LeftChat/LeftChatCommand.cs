@@ -112,6 +112,9 @@ public class LeftChatHandler(IAppDbContext dbContext,
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        await _chatService.DisconnectAllUserConnectionsFromChat(request.ChatId.ToString(),
+                                                                request.UserId.ToString());
+
         if (!isChatDeleted)
         {
             MessageDto userLeftChatDto = _mapper.Map<MessageDto>(userLeftChat);

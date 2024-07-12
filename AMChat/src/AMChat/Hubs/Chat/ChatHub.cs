@@ -14,11 +14,13 @@ using Microsoft.AspNetCore.SignalR;
 namespace AMChat.Hubs.Chat;
 
 public class ChatHub(ICurrentUserService currentUser,
+                     IChatCache chatCache,
                      IMediator mediator,
                      IMapper mapper)
     : Hub<IChatClient>
 {
     private readonly ICurrentUserService _currentUser = currentUser;
+    private readonly IChatCache _chatCache = chatCache;
     private readonly IMediator _mediator = mediator;
     private readonly IMapper _mapper  = mapper;
 
@@ -123,5 +125,19 @@ public class ChatHub(ICurrentUserService currentUser,
                 Errors = [ErrorTemplates.ForbiddenWriteToNotJoinedChat]
             };
         }
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        string? disconnectingUserId = Context.UserIdentifier;
+        string disconnectingConnectionId = Context.ConnectionId;
+
+        if (disconnectingUserId is not null)
+        {
+            _chatCache.DeleteUserConnectionFromAllChats(disconnectingUserId,
+                                                        disconnectingConnectionId);
+        }
+
+        await base.OnDisconnectedAsync(exception);
     }
 }

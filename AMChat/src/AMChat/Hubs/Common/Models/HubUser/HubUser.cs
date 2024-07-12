@@ -3,5 +3,5 @@
 public record HubUser
 {
     public required string Id { get; init; }
-    public List<string> ConnectionIds { get; init; } = [];
+    public HashSet<string> ConnectionIds { get; init; } = [];
 };

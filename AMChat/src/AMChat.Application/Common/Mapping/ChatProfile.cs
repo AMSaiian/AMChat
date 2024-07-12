@@ -25,6 +25,10 @@ public sealed class ChatProfile : Profile
             .ReverseMap()
             .ForMember(entity => entity.Description,
                        options => options.Condition(command => command.HasDescription))
+            .ForMember(entity => entity.OwnerId,
+                       options => options.Condition(command => command.OwnerId is not null))
+            .ForMember(entity => entity.Name,
+                       options => options.Condition(command => command.Name is not null))
             .ForMember(entity => entity.Id,
                        options => options.Ignore());
     }

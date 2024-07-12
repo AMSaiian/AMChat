@@ -39,7 +39,7 @@ public class DisconnectFromChatHandler(IAppDbContext dbContext,
 
 
         await _chatService.DisconnectFromChatAsync(request.ChatId.ToString(),
-                                                request.UserId.ToString(),
-                                                request.ConnectionId);
+                                                   request.UserId.ToString(),
+                                                   request.ConnectionId);
     }
 }

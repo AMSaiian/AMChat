@@ -31,6 +31,10 @@ public sealed class UserProfile : AutoMapper.Profile
             .ReverseMap()
             .ForMember(entity => entity.Description,
                        options => options.Condition(command => command.HasDescription))
+            .ForMember(entity => entity.Fullname,
+                       options => options.Condition(command => command.Fullname is not null))
+            .ForMember(entity => entity.Birthdate,
+                       options => options.Condition(command => command.Birthdate is not null))
             .ForMember(entity => entity.UserId,
                        options => options.Ignore());
     }

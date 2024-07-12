@@ -14,11 +14,18 @@ public class ChatService(IHubContext<ChatHub, IChatClient> hub,
     private readonly IHubContext<ChatHub, IChatClient> _hub = hub;
     private readonly IChatCache _chatCache = chatCache;
 
-    public async Task SendMessagesAsync(string chatId, List<MessageDto> message)
+    public async Task SendMessagesToConnectionAsync(string connectionId, List<MessageDto> messages)
+    {
+        await _hub.Clients
+            .Client(connectionId)
+            .ReceiveMessages(messages);
+    }
+
+    public async Task SendMessagesAsync(string chatId, List<MessageDto> messages)
     {
         await _hub.Clients
             .Groups(chatId)
-            .ReceiveMessages(message);
+            .ReceiveMessages(messages);
     }
 
     public async Task ConnectToChatAsync(string chatId, string userId, string connectionId)
@@ -28,6 +35,23 @@ public class ChatService(IHubContext<ChatHub, IChatClient> hub,
                                            connectionId);
 
         await _hub.Groups.AddToGroupAsync(connectionId, chatId);
+    }
+
+    public async Task DisconnectAllUserConnectionsFromChat(string chatId, string userId)
+    {
+        HubUser? userConnectionsToChat = _chatCache.GetAllUserChatConnections(userId, chatId);
+
+        if (userConnectionsToChat is null)
+        {
+            return;
+        }
+
+        foreach (string connectionId in userConnectionsToChat.ConnectionIds)
+        {
+            await _hub.Groups.RemoveFromGroupAsync(connectionId, chatId);
+        }
+
+        _chatCache.DeleteAllUserChatConnections(userId, chatId);
     }
 
     public async Task DisconnectFromChatAsync(string chatId, string userId, string connectionId)
@@ -42,7 +66,7 @@ public class ChatService(IHubContext<ChatHub, IChatClient> hub,
     public async Task DisconnectFromAllChatsAsync(string userId)
     {
         List<(string ChatId, HubUser ChatConnections)> userConnections =
-            _chatCache.GetAllUserChatConnections(userId);
+            _chatCache.GetAllUserConnections(userId);
 
         foreach (var userConnectionsToChat in userConnections)
         {
@@ -57,7 +81,12 @@ public class ChatService(IHubContext<ChatHub, IChatClient> hub,
 
     public async Task DisconnectAllUsersFromChat(string chatId)
     {
-        List<HubUser> usersConnections = _chatCache.GetChatConnections(chatId);
+        List<HubUser>? usersConnections = _chatCache.GetChatConnections(chatId);
+
+        if (usersConnections is null)
+        {
+            return;
+        }
 
         foreach (string connectionId in usersConnections.SelectMany(
                      userConnections => userConnections.ConnectionIds))

@@ -4,9 +4,13 @@ namespace AMChat.Application.Common.Interfaces;
 
 public interface IChatService
 {
-    public Task SendMessagesAsync(string chatId, List<MessageDto> message);
+    public Task SendMessagesToConnectionAsync(string connectionId, List<MessageDto> messages);
+
+    public Task SendMessagesAsync(string chatId, List<MessageDto> messages);
 
     public Task ConnectToChatAsync(string chatId, string userId, string connectionId);
+
+    public Task DisconnectAllUserConnectionsFromChat(string chatId, string userId);
 
     public Task DisconnectFromChatAsync(string chatId, string userId, string connectionId);
 

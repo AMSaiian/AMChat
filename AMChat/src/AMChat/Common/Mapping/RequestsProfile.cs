@@ -2,6 +2,7 @@
 using AMChat.Application.Chats.Command.UpdateChat;
 using AMChat.Application.Users.Commands.CreateUser;
 using AMChat.Application.Users.Commands.UpdateUser;
+using AMChat.Application.Users.Commands.UpdateUserProfile;
 using AMChat.Common.Contract.Requests.Chats;
 using AMChat.Common.Contract.Requests.Users;
 using AutoMapper;
@@ -14,7 +15,7 @@ public sealed class RequestsProfile : Profile
     {
         CreateMap<CreateUserRequest, CreateUserCommand>();
         CreateMap<UpdateUserRequest, UpdateUserCommand>();
-        CreateMap<UpdateUserProfileRequest, UpdateUserCommand>();
+        CreateMap<UpdateUserProfileRequest, UpdateUserProfileCommand>();
 
         CreateMap<CreateChatRequest, CreateChatCommand>();
         CreateMap<UpdateChatRequest, UpdateChatCommand>();

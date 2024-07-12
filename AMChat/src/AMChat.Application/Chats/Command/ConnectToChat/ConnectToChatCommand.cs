@@ -52,7 +52,7 @@ public class ConnectToChatHandler(IAppDbContext dbContext,
 
         List<MessageDto> previousMessagesDto = _mapper.Map<List<MessageDto>>(previousMessages);
 
-        await _chatService.SendMessagesAsync(request.ChatId.ToString(),
-                                             previousMessagesDto);
+        await _chatService.SendMessagesToConnectionAsync(request.ConnectionId,
+                                                         previousMessagesDto);
     }
 }
