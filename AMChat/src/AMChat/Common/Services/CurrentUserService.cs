@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AMChat.Application.Common.Interfaces;
+using UnauthorizedAccessException = AMChat.Application.Common.Exceptions.UnauthorizedAccessException;
 
 namespace AMChat.Common.Services;
 

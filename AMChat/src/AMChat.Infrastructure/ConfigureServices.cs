@@ -25,7 +25,7 @@ public static class ConfigureServices
         return services;
     }
 
-    private static IServiceCollection AddAppDbContext(this IServiceCollection services,
+    public static IServiceCollection AddAppDbContext(this IServiceCollection services,
                                                       string connectionString)
     {
         services
