@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AMChat.Application.Common.Interfaces;
+using AutoMapper;
 
 namespace AMChat.IntegrationTests.Common;
 
@@ -8,6 +9,8 @@ public class BaseApiTests(IntegrationTestWebAppFactory factory)
     protected IntegrationTestWebAppFactory Factory { get; init; } = factory;
     protected HttpClient HttpClient { get; init; } = factory.CreateClient();
     protected IMapper Mapper { get; init; } = factory.Scope.ServiceProvider.GetRequiredService<IMapper>();
+    protected IAppDbContext DbContext { get; init; } =
+        factory.Scope.ServiceProvider.GetRequiredService<IAppDbContext>();
 
     protected virtual async Task SetupDatabase()
     {

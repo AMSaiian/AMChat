@@ -77,6 +77,11 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         await _context.Chats.ExecuteDeleteAsync();
         await _context.Profiles.ExecuteDeleteAsync();
         await _context.Users.ExecuteDeleteAsync();
+
+        Users.Clear();
+        Profiles.Clear();
+        Messages.Clear();
+        Chats.Clear();
     }
 
     private async Task<bool> CanBeSeeded()
