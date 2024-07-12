@@ -1,4 +1,4 @@
-﻿namespace AMChat;
+﻿namespace AMChat.Common.Constants;
 
 public static class CustomHeaders
 {

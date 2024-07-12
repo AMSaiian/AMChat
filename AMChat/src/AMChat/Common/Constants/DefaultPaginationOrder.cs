@@ -1,4 +1,4 @@
-﻿namespace AMChat.Constants;
+﻿namespace AMChat.Common.Constants;
 
 public static class DefaultPaginationOrderProperties
 {

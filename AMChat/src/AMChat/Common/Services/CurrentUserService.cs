@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using AMChat.Application.Common.Interfaces;
 
-namespace AMChat.Services;
+namespace AMChat.Common.Services;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     : ICurrentUserService

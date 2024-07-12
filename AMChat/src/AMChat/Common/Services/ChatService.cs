@@ -5,7 +5,7 @@ using AMChat.Hubs.Common.Interfaces;
 using AMChat.Hubs.Common.Models.HubUser;
 using Microsoft.AspNetCore.SignalR;
 
-namespace AMChat.Services;
+namespace AMChat.Common.Services;
 
 public class ChatService(IHubContext<ChatHub, IChatClient> hub,
                          IChatCache chatCache)

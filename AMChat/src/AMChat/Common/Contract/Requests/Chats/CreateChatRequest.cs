@@ -1,4 +1,4 @@
-﻿namespace AMChat.Contract.Requests.Chats;
+﻿namespace AMChat.Common.Contract.Requests.Chats;
 
 public record CreateChatRequest
 {

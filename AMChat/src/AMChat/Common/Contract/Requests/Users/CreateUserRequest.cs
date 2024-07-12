@@ -1,4 +1,4 @@
-﻿namespace AMChat.Contract.Requests.Users;
+﻿namespace AMChat.Common.Contract.Requests.Users;
 
 public record CreateUserRequest
 {

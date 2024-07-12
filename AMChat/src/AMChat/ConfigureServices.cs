@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using AMChat.Application.Common.Interfaces;
+using AMChat.Common.Services;
 using AMChat.Filters;
 using AMChat.Hubs.Common.Cache;
 using AMChat.Hubs.Common.Interfaces;
 using AMChat.Middlewares;
-using AMChat.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AMChat;

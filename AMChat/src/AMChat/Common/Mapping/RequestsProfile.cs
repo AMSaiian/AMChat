@@ -2,11 +2,11 @@
 using AMChat.Application.Chats.Command.UpdateChat;
 using AMChat.Application.Users.Commands.CreateUser;
 using AMChat.Application.Users.Commands.UpdateUser;
-using AMChat.Contract.Requests.Chats;
-using AMChat.Contract.Requests.Users;
+using AMChat.Common.Contract.Requests.Chats;
+using AMChat.Common.Contract.Requests.Users;
 using AutoMapper;
 
-namespace AMChat.Mapping;
+namespace AMChat.Common.Mapping;
 
 public sealed class RequestsProfile : Profile
 {

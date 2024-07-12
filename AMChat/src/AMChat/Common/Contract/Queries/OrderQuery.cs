@@ -1,4 +1,4 @@
-﻿namespace AMChat.Contract.Queries;
+﻿namespace AMChat.Common.Contract.Queries;
 
 public record OrderQuery
 {

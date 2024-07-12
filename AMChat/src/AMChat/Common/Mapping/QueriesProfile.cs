@@ -1,8 +1,8 @@
 ﻿using AMChat.Application.Common.Models.Pagination;
-using AMChat.Contract.Queries;
+using AMChat.Common.Contract.Queries;
 using Profile = AutoMapper.Profile;
 
-namespace AMChat.Mapping;
+namespace AMChat.Common.Mapping;
 
 public sealed class QueriesProfile : Profile
 {
