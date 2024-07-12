@@ -15,14 +15,6 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
                                      Faker<User> userFaker)
     : IAppDbContextInitializer
 {
-    private readonly ILogger<AppDbContextInitializer> _logger = logger;
-    private readonly AppDbContext _context = context;
-
-    private readonly Faker<Chat> _chatFaker = chatFaker;
-    private readonly Faker<Message> _messageFaker = messageFaker;
-    private readonly Faker<Profile> _profileFaker = profileFaker;
-    private readonly Faker<User> _userFaker = userFaker;
-
     public List<Chat> Chats { get; init; } = new();
 
     public List<Message> Messages { get; init; } = new();
@@ -30,6 +22,14 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
     public List<Profile> Profiles { get; init; } = new();
 
     public List<User> Users { get; init; } = new();
+
+    private readonly ILogger<AppDbContextInitializer> _logger = logger;
+    private readonly AppDbContext _context = context;
+
+    private readonly Faker<Chat> _chatFaker = chatFaker;
+    private readonly Faker<Message> _messageFaker = messageFaker;
+    private readonly Faker<Profile> _profileFaker = profileFaker;
+    private readonly Faker<User> _userFaker = userFaker;
 
     private readonly int _userAmount = 20;
     private readonly int _chatsAmount = 5;
@@ -58,6 +58,11 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
 
         try
         {
+            Users.Clear();
+            Profiles.Clear();
+            Messages.Clear();
+            Chats.Clear();
+
             await SeedUsersAndProfiles();
             await SeedChats();
             await SeedMessages();
@@ -71,17 +76,12 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         }
     }
 
-    public async Task ClearAsync()
+    public async Task ClearStorageAsync()
     {
         await _context.Messages.ExecuteDeleteAsync();
         await _context.Chats.ExecuteDeleteAsync();
         await _context.Profiles.ExecuteDeleteAsync();
         await _context.Users.ExecuteDeleteAsync();
-
-        Users.Clear();
-        Profiles.Clear();
-        Messages.Clear();
-        Chats.Clear();
     }
 
     private async Task<bool> CanBeSeeded()
