@@ -13,12 +13,12 @@
 ### Application - CQRS with MediatoR
 ### Real-time communication - SignalR hubs
 ------------
-##Implemented:
-- ####Cross-cuttings:
+## Implemented:
+- #### Cross-cuttings:
 1.Structured logging
 2.Validation pipelines
 3.Errors and exceptions handlers/filters
-- ####Main functionallity
+- #### Main functionallity
 1.Creating chat with initial system message
 2.Deleting chat with validating access rights
 3.Updating chat with validating access rights and passing ownership if necessary
@@ -31,9 +31,9 @@
 10.Quering users/chats with dynamic ordering and pagination, search by name has been implemented as well.
 11.Storage seeding with Bogus fakers
 12.A lot of other actions to handle edge-cases related to tasks and domain area
-- ####Mocks
+- #### Mocks
 1.Auth mock with taking user id from custom header and creating claims identity based on this value
 2.Chat connections cache(will be better to replace with Reddis distributed cache)
-- ####Testing
+- #### Testing
 1.Integration testing using docker containers for database per every test class and seeding.
 2.Unit testing using InMemory DbContext and Moq Mocks.
