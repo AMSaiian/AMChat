@@ -19,8 +19,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>,
         .WithPassword(DbContainerConstants.Password)
         .Build();
 
-    public IServiceScope Scope { get; set; } = default!;
-    public IAppDbContextInitializer DbInitializer { get; set; } = default!;
+    public IServiceScope Scope { get; protected set; } = default!;
+    public IAppDbContextInitializer DbInitializer { get; protected set; } = default!;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

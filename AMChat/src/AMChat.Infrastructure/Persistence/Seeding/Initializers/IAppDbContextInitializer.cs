@@ -16,5 +16,5 @@ public interface IAppDbContextInitializer
 
     public Task SeedAsync();
 
-    public Task ClearAsync();
+    public Task ClearStorageAsync();
 }
