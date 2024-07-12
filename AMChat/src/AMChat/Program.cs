@@ -56,7 +56,4 @@ app.MapHub<ChatHub>("/chat");
 
 app.Run();
 
-namespace AMChat
-{
-    public partial class Program;
-}
+public partial class Program;

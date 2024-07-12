@@ -23,10 +23,13 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
     private readonly Faker<Profile> _profileFaker = profileFaker;
     private readonly Faker<User> _userFaker = userFaker;
 
-    private readonly List<Chat> _chats = new();
-    private readonly List<Message> _messages = new();
-    private readonly List<Profile> _profiles = new();
-    private readonly List<User> _users = new();
+    public List<Chat> Chats { get; init; } = new();
+
+    public List<Message> Messages { get; init; } = new();
+
+    public List<Profile> Profiles { get; init; } = new();
+
+    public List<User> Users { get; init; } = new();
 
     private readonly int _userAmount = 20;
     private readonly int _chatsAmount = 5;
@@ -68,6 +71,14 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         }
     }
 
+    public async Task ClearAsync()
+    {
+        await _context.Messages.ExecuteDeleteAsync();
+        await _context.Chats.ExecuteDeleteAsync();
+        await _context.Profiles.ExecuteDeleteAsync();
+        await _context.Users.ExecuteDeleteAsync();
+    }
+
     private async Task<bool> CanBeSeeded()
     {
         return !(await _context.Users.AnyAsync()
@@ -81,44 +92,44 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
         var generatedUsers = _userFaker.Generate(_userAmount);
         var generatedProfiles = _profileFaker.Generate(_userAmount);
 
-        _users.AddRange(generatedUsers);
-        _profiles.AddRange(generatedProfiles);
+        Users.AddRange(generatedUsers);
+        Profiles.AddRange(generatedProfiles);
 
         for (int i = 0; i < _userAmount; i++)
         {
-            _users[i].Profile = _profiles[i];
+            Users[i].Profile = Profiles[i];
         }
 
-        await _context.AddRangeAsync(_users);
+        await _context.AddRangeAsync(Users);
     }
 
     private async Task SeedChats()
     {
-        _chats.AddRange(_chatFaker
+        Chats.AddRange(_chatFaker
                             .Generate(_chatsAmount));
 
-        var chatOwners = _users
+        var chatOwners = Users
             .Take(_chatsAmount)
             .ToList();
 
         for (int i = 0; i < _chatsAmount; i++)
         {
-            _chats[i].Owner = chatOwners[i];
+            Chats[i].Owner = chatOwners[i];
         }
 
-        var joinedUsersChunks = _users
+        var joinedUsersChunks = Users
             .Skip(_chatsAmount)
             .Chunk(_joinedUsersPerChat)
             .ToList();
 
         for (int i = 0; i < joinedUsersChunks.Count; i++)
         {
-            _chats[i].JoinedUsers.AddRange(joinedUsersChunks[i]);
-            _chats[i].JoinedUsers.AddRange(chatOwners
-                                               .Where(user => user != _chats[i].Owner));
+            Chats[i].JoinedUsers.AddRange(joinedUsersChunks[i]);
+            Chats[i].JoinedUsers.AddRange(chatOwners
+                                               .Where(user => user != Chats[i].Owner));
         }
 
-        await _context.Chats.AddRangeAsync(_chats);
+        await _context.Chats.AddRangeAsync(Chats);
     }
 
     private async Task SeedMessages()
@@ -132,19 +143,19 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
                                                     + joinChatMessagesAmount
                                                     + commonMessagesAmount;
 
-        _messages.AddRange(_messageFaker
+        Messages.AddRange(_messageFaker
                                .Generate(totalMessagesAmountWithJoinChatMessages)
                                .OrderBy(message => message.PostedTime));
 
         for (int i = 0; i < chatCreationMessagesAmount; i++)
         {
-            _messages[i].Text = string.Format(SystemMessageTemplates.CreateChatMessage,
-                                              _chats[i].Owner.Name);
+            Messages[i].Text = string.Format(SystemMessageTemplates.CreateChatMessage,
+                                              Chats[i].Owner.Name);
 
-            _chats[i].Messages.Add(_messages[i]);
+            Chats[i].Messages.Add(Messages[i]);
         }
 
-        var joinToChatMessagesChunks = _messages
+        var joinToChatMessagesChunks = Messages
             .Skip(_chatsAmount)
             .Take(joinChatMessagesAmount)
             .Chunk(_joinedUsersPerChat)
@@ -155,12 +166,12 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
             for (int j = 0; j < _joinedUsersPerChat; j++)
             {
                 joinToChatMessagesChunks[i][j].Text = string.Format(SystemMessageTemplates.JoinToChatMessage,
-                                                                    _chats[i].JoinedUsers[j].Name);
-                _chats[i].Messages.Add(joinToChatMessagesChunks[i][j]);
+                                                                    Chats[i].JoinedUsers[j].Name);
+                Chats[i].Messages.Add(joinToChatMessagesChunks[i][j]);
             }
         }
 
-        var commonChatMessagesChunks = _messages
+        var commonChatMessagesChunks = Messages
             .Skip(chatCreationMessagesAmount + joinChatMessagesAmount)
             .Chunk(commonMessagesInChatAmount)
             .ToList();
@@ -170,20 +181,20 @@ public class AppDbContextInitializer(ILogger<AppDbContextInitializer> logger,
             int messageInChatIndex = 0;
             for (int j = 0; j < _messagesPerUser; j++)
             {
-                _chats[i].Messages.Add(
+                Chats[i].Messages.Add(
                     AssignAuthorToMessage(commonChatMessagesChunks[i][messageInChatIndex++],
-                                          _chats[i].Owner));
+                                          Chats[i].Owner));
 
                 for (int k = 0; k < _joinedUsersPerChat; k++)
                 {
-                    _chats[i].Messages.Add(
+                    Chats[i].Messages.Add(
                         AssignAuthorToMessage(commonChatMessagesChunks[i][messageInChatIndex++],
-                                              _chats[i].JoinedUsers[k]));
+                                              Chats[i].JoinedUsers[k]));
                 }
             }
         }
 
-        await _context.Messages.AddRangeAsync(_messages);
+        await _context.Messages.AddRangeAsync(Messages);
     }
 
     private Message AssignAuthorToMessage(Message message, User user)
