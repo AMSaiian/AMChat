@@ -1,7 +1,5 @@
 # AMChat
 ## Please read checklist before investigating
-## If something went wrong - connect to me via HR or commit message, open issue - I open for feedback
-### P.S. I really wanted to implement docker compose however I had no time for it so it stayed empty as generated :(
 ------------
 ## !!!! To run integration tests - Docker Desktop must be installed at your machine
 ## !!!! To run solution - PostgreSQL db server must be installed at your machine.
